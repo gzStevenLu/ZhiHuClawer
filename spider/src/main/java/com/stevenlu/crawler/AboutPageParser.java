@@ -1,5 +1,6 @@
 package com.stevenlu.crawler;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,10 +13,12 @@ import com.stevenlu.crawler.bean.Detail;
 
 public class AboutPageParser implements Runnable{
 	
+	private BlockingQueue<Detail> list;
 	private String page;
 	
-	public AboutPageParser(String page) {
+	public AboutPageParser(BlockingQueue<Detail> list, String page) {
 		super();
+		this.list = list;
 		this.page = page; 
 	}
 	
@@ -61,6 +64,7 @@ public class AboutPageParser implements Runnable{
 		data.fav = rs.get(2).html();
 		data.shares = rs.get(3).html();
 		
+		list.add(data);
 	}
 	
 	private String regexHref(String href) {
