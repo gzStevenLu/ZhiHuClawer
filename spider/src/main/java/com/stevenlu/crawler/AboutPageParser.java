@@ -24,19 +24,18 @@ public class AboutPageParser implements Runnable{
 	
 	@Override
 	public void run() {
-		System.out.print("解析页面：");
+		System.out.println("AboutParser解析页面");
 		parseAbout(page);
 	}
 	
 	public void parseAbout(String page) {
-		//File file = new File("./webpage/c.txt");
 		Detail data = new Detail();
 		Document doc = Jsoup.parse(page);
 		
 		Element main = doc.select("div.zm-profile-header-main").first();
 		data.name = main.select("a.name").html();
 		data.href = regexHref(main.select("a.zm-profile-icon-return").attr("href"));
-		data.bio = main.select("span.bio").html();
+		data.bio = main.select("span.bio").attr("title");
 		if (main.select("div.weibo-wrap").html() != null) {
 			data.weibo = main.select("a.zm-profile-header-user-weibo").attr("href");
 		}
@@ -64,7 +63,11 @@ public class AboutPageParser implements Runnable{
 		data.fav = rs.get(2).html();
 		data.shares = rs.get(3).html();
 		
-		list.add(data);
+		try {
+			list.put(data);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private String regexHref(String href) {

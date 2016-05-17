@@ -43,8 +43,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 public class Login {
-	private String email = "hedy901@163.com";
-	private String password = "123456";
+	private String email = "";
+	private String password = "";
 	private String _xsrf = "";
 	private String captcha = "";
 	private String remember_me = "true";

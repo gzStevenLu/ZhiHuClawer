@@ -19,7 +19,7 @@ public class App
 	private BlockingQueue<String> getPageTasks = new ArrayBlockingQueue<>(100);		// 网页下载任务队列
 	private BlockingQueue<String> aboutParseTasks = new ArrayBlockingQueue<>(100);		// About解析队列
 	private BlockingQueue<String> followeeParseTasks = new ArrayBlockingQueue<>(100);	// Followee解析队列
-	private BlockingQueue<Detail> detailList = new ArrayBlockingQueue<>(50);			// Followee解析队列
+	private BlockingQueue<Detail> detailList = new ArrayBlockingQueue<>(10);			// Followee解析队列
 	private BloomFilter<String> bloomFilter = new BloomFilter<>(0.1, 110);
 	
 	private boolean stop = false;
@@ -84,6 +84,11 @@ public class App
 	public void savingMonitor() {
 		DetailDao dao = new DetailDao();
 		while (true) {
+			try {
+				Thread.currentThread().sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			if (detailList.remainingCapacity() == 0 || stop == true) {
 				dao.batchAddDetail(detailList);
 				detailList.clear();
@@ -99,6 +104,7 @@ public class App
         Thread t1 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName("Thread-PageDownloader");
 				app.pageDownloaderCtrl();
 			}
 		});
@@ -106,6 +112,7 @@ public class App
         Thread t2 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName("Thread-FolloweeParserCtrl");
 				app.followeeParserCtrl();
 			}
 		});
@@ -113,6 +120,7 @@ public class App
         Thread t3 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName("Thread-AboutParserCtrl");
 				app.aboutParserCtrl();
 			}
 		});
@@ -120,6 +128,7 @@ public class App
         Thread t4 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Thread.currentThread().setName("Thread-SavingMonitor");
 				app.savingMonitor();
 			}
 		});
@@ -129,14 +138,11 @@ public class App
         t3.start();
         t4.start();
         
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-        	if (sc.nextLine().equals("q")) {
-        		app.stop = true;
-        		break;
-        	}
+/*        Scanner sc = new Scanner(System.in);
+        while (!sc.hasNext()) {
+        	
         }
-        sc.close();
+        sc.close();*/
         
     }
 }

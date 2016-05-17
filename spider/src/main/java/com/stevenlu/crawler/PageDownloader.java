@@ -50,7 +50,7 @@ public class PageDownloader implements Runnable {
 		if (mode == ABOUT) {
 			uri += "/about";
 		} else {
-			uri += "/followee";
+			uri += "/followees";
 		}
 		System.out.println("下载页面：" + uri);
 		
@@ -62,6 +62,14 @@ public class PageDownloader implements Runnable {
 				System.out.println("访问成功");
 				
 				result = saveInMemory(response.getEntity().getContent());
+				
+				if (result != null && !result.isEmpty()) {
+					try {
+						tasks.put(result);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
@@ -74,14 +82,6 @@ public class PageDownloader implements Runnable {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-		}
-		
-		if (result != null && !result.isEmpty()) {
-			try {
-				tasks.put(result);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
 	}

@@ -26,12 +26,11 @@ public class FolloweePageParser implements Runnable{
 	
 	@Override
 	public void run() {
-		System.out.print("解析页面：");
+		System.out.println("FolloweeParser解析页面");
 		parseFollowees(page);
 	}
 
 	public void parseFollowees(String page) {
-		//File file = new File("./webpage/a.txt");
 		Document doc = Jsoup.parse(page);
 		Elements es = doc.select("a.zm-item-link-avatar");
 		ListIterator<Element> it = es.listIterator();

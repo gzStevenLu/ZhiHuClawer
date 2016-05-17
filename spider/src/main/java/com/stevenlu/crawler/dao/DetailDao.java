@@ -47,7 +47,7 @@ public class DetailDao {
 				
 				pstmt.setInt(16, Integer.parseInt(detail.thank));
 				pstmt.setInt(17, Integer.parseInt(detail.fav));
-				pstmt.setInt(11, Integer.parseInt(detail.shares));
+				pstmt.setInt(18, Integer.parseInt(detail.shares));
 				
 				pstmt.addBatch();
 			}
