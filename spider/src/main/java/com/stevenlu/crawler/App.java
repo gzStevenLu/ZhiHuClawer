@@ -13,8 +13,9 @@ import com.stevenlu.crawler.utils.BloomFilter;
  */
 public class App 
 {
-	private BlockingQueue<String> getPageTasks = new ArrayBlockingQueue<>(100);
-	private BlockingQueue<String> getPeopleTasks = new ArrayBlockingQueue<>(100);
+	private BlockingQueue<String> getPageTasks = new ArrayBlockingQueue<>(100);		// 网页下载任务队列
+	private BlockingQueue<String> aboutParseTasks = new ArrayBlockingQueue<>(100);		// About解析队列
+	private BlockingQueue<String> followeeParseTasks = new ArrayBlockingQueue<>(100);	// Followee解析队列
 	private BloomFilter<String> bloomFilter = new BloomFilter<>(0.1, 110);
 	
 	public void pageDownloaderCtrl() {
@@ -28,7 +29,8 @@ public class App
 		while (count < 100) {
 			try {
 				String next = getPageTasks.take();
-				es.execute(new PageDownloader(getPeopleTasks, next));
+				es.execute(new PageDownloader(followeeParseTasks, next, PageDownloader.FOLLOWEE));
+				es.execute(new PageDownloader(aboutParseTasks, next, PageDownloader.ABOUT));
 				count++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -39,13 +41,30 @@ public class App
 		System.out.println("共下载" + count + "个页面");
 	}
 	
-	public void pageParserCtrl() {
+	public void followeeParserCtrl() {
 		ExecutorService es = Executors.newFixedThreadPool(50);
 		int count = 0;
 		while (count < 100) {
 			try {
-				String next = getPeopleTasks.take();
-				es.execute(new PageParser(getPageTasks, next, bloomFilter));
+				String next = followeeParseTasks.take();
+				es.execute(new FolloweePageParser(getPageTasks, next, bloomFilter));
+				count++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
+		}
+		es.shutdown();
+		System.out.println("共解析" + count + "个页面");
+	}
+	
+	public void aboutParserCtrl() {
+		ExecutorService es = Executors.newFixedThreadPool(50);
+		int count = 0;
+		while (count < 100) {
+			try {
+				String next = aboutParseTasks.take();
+				es.execute(new AboutPageParser(next));
 				count++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -65,14 +84,23 @@ public class App
 				app.pageDownloaderCtrl();
 			}
 		});
+        
         Thread t2 = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				app.pageParserCtrl();
+				app.followeeParserCtrl();
+			}
+		});
+        
+        Thread t3 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				app.aboutParserCtrl();
 			}
 		});
         
         t1.start();
         t2.start();
+        t3.start();
     }
 }

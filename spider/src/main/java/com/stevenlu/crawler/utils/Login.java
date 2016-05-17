@@ -1,4 +1,4 @@
-package com.stevenlu.crawler;
+package com.stevenlu.crawler.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
