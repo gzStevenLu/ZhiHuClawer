@@ -44,13 +44,15 @@ import org.jsoup.nodes.Element;
 
 public class Login {
 	private String email = "";
+	private String phone_num = "";
 	private String password = "";
 	private String _xsrf = "";
 	private String captcha = "";
 	private String remember_me = "true";
 	
 	private String timestamp = "";
-	private String loginUrl = "https://www.zhihu.com/login/email";
+	//private String loginUrl = "https://www.zhihu.com/login/email";
+	private String loginUrl = "https://www.zhihu.com/login/phone_num";
 	private String captchaUrl = "";
 	
 	private CloseableHttpClient client;
@@ -133,7 +135,8 @@ public class Login {
 		List<NameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair("password", password));
 		params.add(new BasicNameValuePair("captcha", captcha));
-		params.add(new BasicNameValuePair("email", email));
+		//params.add(new BasicNameValuePair("email", email));
+		params.add(new BasicNameValuePair("phone_num", phone_num));
 		params.add(new BasicNameValuePair("_xsrf", _xsrf));
 		params.add(new BasicNameValuePair("remember_me", remember_me));
 		CloseableHttpResponse response = null;

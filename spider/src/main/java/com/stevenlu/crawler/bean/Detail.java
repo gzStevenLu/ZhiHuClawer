@@ -10,6 +10,8 @@ public class Detail {
 	public String gender;
 	public String employment;
 	public String position;
+	public String education;
+	public String education_extra;
 	public String description;
 	
 	public String asks;

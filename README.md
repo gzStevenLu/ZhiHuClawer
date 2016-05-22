@@ -1,3 +1,10 @@
 # ZhiHuClawer
 
-æ­¤çˆ¬è™«ä»…ä¸ºå­¦ä¹ ã€ç»ƒä¹ ä¹‹ç”¨ã€‚
+´ËÅÀ³æ½ö¹©Ñ§Ï°¡¢ÑÐ¾¿Ö®ÓÃ¡£
+
+Ê×´ÎÊ¹ÓÃËµÃ÷£º
+	1¡¢Ê×´ÎÊ¹ÓÃÇëÏÈÔËÐÐÔÚutils°üÏÂµÄLogin³ÌÐò£¬µÇÂ¼°ÑcookieÐòÁÐ»¯ÏÂÀ´¡£
+		£¨×¢ÒâÐÞ¸ÄÊÖ»úµÇÂ¼»òÓÊÏäµÇÂ¼ÑéÖ¤µØÖ·£¬¼°ÑéÖ¤ÐÅÏ¢¡£ÇëÊÖ¶¯·ÅÖÃÐòÁÐ»¯ºóµÄÎÄ¼þµ½¸ùÄ¿Â¼/cookiesÎÄ¼þ¼ÐÏÂ£©
+	2¡¢Ê×´ÎÔËÐÐÇë×Ô±¸HTTPS´úÀí£¬ÒÔÃ¿ÐÐÒ»Ìõ¡°IP:Port¡±µÄ¸ñÊ½£¬±£´æµ½¸ùÄ¿Â¼ÏÂµÄip.txtÎÄ¼þÖÐ¡£ÔËÐÐutils°üÏÂµÄProxyHunterÑéÖ¤ÓÐÐ§µÄIP£¬³ÌÐò»á×Ô¶¯½«ÓÐÐ§µÄ´úÀíÐòÁÐ»¯²¢±£´æµ½¸ùÄ¿Â¼proxy.datÖÐ¡£
+	3¡¢¸ù¾ÝSQL´´½¨ÏàÓ¦Êý¾Ý¿â£¬²¢ÔÚDBUtilÖÐÅäÖÃºÃÊý¾Ý¿â²ÎÊý¡£
+	4¡¢ÔÚApp.javaÖÐ£¬ÉèÖÃ¾²Ì¬±äÁ¿ENTERÎªÄ¿±êÈë¿ÚµØÖ·£¬ÔËÐÐApp.java¼´¿ÉÔËÐÐÅÀ³æ¡£

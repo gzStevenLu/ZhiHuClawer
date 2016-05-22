@@ -1,9 +1,11 @@
-package com.stevenlu.crawler;
+package com.stevenlu.crawler.tool;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,6 +14,8 @@ import org.jsoup.select.Elements;
 import com.stevenlu.crawler.bean.Detail;
 
 public class AboutPageParser implements Runnable{
+	
+	private static final Logger logger = LogManager.getLogger(PageDownloader.class);
 	
 	private BlockingQueue<Detail> list;
 	private String page;
@@ -24,7 +28,6 @@ public class AboutPageParser implements Runnable{
 	
 	@Override
 	public void run() {
-		System.out.println("AboutParser解析页面");
 		parseAbout(page);
 	}
 	
@@ -46,8 +49,10 @@ public class AboutPageParser implements Runnable{
 		} else {
 			data.gender = "female";
 		}
-		data.employment = main.select("span.employment").html();
-		data.position = main.select("span.position").html();
+		data.employment = main.select("span.employment").attr("title");
+		data.position = main.select("span.position").attr("title");
+		data.education = main.select("span.education").attr("title");
+		data.education_extra = main.select("span.education-extra").attr("title");
 		data.description = main.select("span.description.unfold-item").select("span.content").html();
 		
 		Elements navbar = doc.select("div.profile-navbar").select("span");
@@ -65,8 +70,9 @@ public class AboutPageParser implements Runnable{
 		
 		try {
 			list.put(data);
+			logger.info("About页面解析成功：" + data.name);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.catching(e);
 		}
 	}
 	

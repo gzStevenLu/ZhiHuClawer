@@ -14,8 +14,8 @@ public class DetailDao {
 	private static final String ADD_DETAIL = "INSERT INTO detail (name, href, "
 			+ "bio, weibo, location, bussiness, gender, employment, position, "
 			+ "description, asks, answers, posts, collections, vote, thank, "
-			+ "fav, shares) VALUES (?, ?, ?, ?, ?,  ?, ?, ?, ?, ?,  ?, ?, ?, ?, ?, "
-			+ "?, ?, ?)";
+			+ "fav, shares, education, eduextra) VALUES (?, ?, ?, ?, ?, "
+			+ " ?, ?, ?, ?, ?,  ?, ?, ?, ?, ?,  ?, ?, ?, ?, ?)";
 	
 	public int batchAddDetail(BlockingQueue<Detail> queue) {
 		Connection conn = DBUtil.getConnection();
@@ -48,6 +48,8 @@ public class DetailDao {
 				pstmt.setInt(16, Integer.parseInt(detail.thank));
 				pstmt.setInt(17, Integer.parseInt(detail.fav));
 				pstmt.setInt(18, Integer.parseInt(detail.shares));
+				pstmt.setString(19, detail.education);
+				pstmt.setString(20, detail.education_extra);
 				
 				pstmt.addBatch();
 			}
@@ -55,8 +57,9 @@ public class DetailDao {
 			conn.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
-		return count.length;
+		return count != null ? count.length : 0;
 	}
 	
 }

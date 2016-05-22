@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class DBUtil {
 	
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	private static final String DB_URL = "jdbc:mysql://localhost/zhihu";
+	private static final String DB_URL = "jdbc:mysql://localhost/zhihu?useUnicode=true&characterEncoding=UTF-8";
 	private static final String USER = "root";
 	private static final String PASS = "";
 	

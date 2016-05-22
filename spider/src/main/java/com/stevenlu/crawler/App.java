@@ -6,8 +6,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.stevenlu.crawler.bean.Detail;
 import com.stevenlu.crawler.dao.DetailDao;
+import com.stevenlu.crawler.tool.AboutPageParser;
+import com.stevenlu.crawler.tool.FolloweePageParser;
+import com.stevenlu.crawler.tool.PageDownloader;
 import com.stevenlu.crawler.utils.BloomFilter;
 
 
@@ -16,86 +22,91 @@ import com.stevenlu.crawler.utils.BloomFilter;
  */
 public class App 
 {
-	private BlockingQueue<String> getPageTasks = new ArrayBlockingQueue<>(100);		// 网页下载任务队列
+	private static final Logger logger = LogManager.getLogger(App.class);
+	
+	private static final String ENTER = "/people/steven-lu-93";
+	
+	private BlockingQueue<String> getPageTasks = new ArrayBlockingQueue<>(200);			// 网页下载任务队列
 	private BlockingQueue<String> aboutParseTasks = new ArrayBlockingQueue<>(100);		// About解析队列
 	private BlockingQueue<String> followeeParseTasks = new ArrayBlockingQueue<>(100);	// Followee解析队列
-	private BlockingQueue<Detail> detailList = new ArrayBlockingQueue<>(10);			// Followee解析队列
-	private BloomFilter<String> bloomFilter = new BloomFilter<>(0.1, 110);
+	private BlockingQueue<Detail> detailList = new ArrayBlockingQueue<>(100);			// 产品：等候数据库存储队列
+	private BloomFilter<String> bloomFilter = new BloomFilter<>(0.01, 200000);
 	
 	private boolean stop = false;
 	
 	public void pageDownloaderCtrl() {
 		try {
-			getPageTasks.put("/people/steven-lu-93");
+			getPageTasks.put(ENTER);
 		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+			logger.catching(e1);
 		}
-		ExecutorService es = Executors.newFixedThreadPool(50);
+		ExecutorService es = Executors.newFixedThreadPool(100);
 		int count = 0;
 		while (!stop) {
 			try {
 				String next = getPageTasks.take();
+				logger.info("获取第"+ count++ +"个网页：Followee");
 				es.execute(new PageDownloader(followeeParseTasks, next, PageDownloader.FOLLOWEE));
+				Thread.currentThread().sleep(150L);
+				logger.info("获取第"+ count++ +"个网页：About");
 				es.execute(new PageDownloader(aboutParseTasks, next, PageDownloader.ABOUT));
-				count+=2;
+				Thread.currentThread().sleep(150L);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.catching(e);
 				Thread.currentThread().interrupt();
 			}
 		}
 		es.shutdown();
-		System.out.println("PageDownloader已停止工作\nPageDownloader共下载" + count + "个页面");
+		logger.info("PageDownloader Thread stop.");
 	}
 	
 	public void followeeParserCtrl() {
-		ExecutorService es = Executors.newFixedThreadPool(50);
+		ExecutorService es = Executors.newFixedThreadPool(20);
 		int count = 0;
 		while (!stop) {
 			try {
 				String next = followeeParseTasks.take();
+				logger.info("解析第"+ count++ +"个网页：Followee");
 				es.execute(new FolloweePageParser(getPageTasks, next, bloomFilter));
-				//count++;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.catching(e);
 				Thread.currentThread().interrupt();
 			}
 		}
 		es.shutdown();
-		System.out.println("FolloweeParser已停止工作\nFolloweeParser共解析" + count + "个页面");
+		logger.info("FolloweeParser Thread stop.");
 	}
 	
 	public void aboutParserCtrl() {
-		ExecutorService es = Executors.newFixedThreadPool(50);
+		ExecutorService es = Executors.newFixedThreadPool(20);
 		int count = 0;
 		while (!stop) {
 			try {
 				String next = aboutParseTasks.take();
+				logger.info("解析第"+ count++ +"个网页：About");
 				es.execute(new AboutPageParser(detailList, next));
-				count++;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.catching(e);
 				Thread.currentThread().interrupt();
 			}
 		}
 		es.shutdown();
-		System.out.println("AboutParser已停止工作\nAboutParser共解析" + count + "个页面");
+		logger.info("AboutParser Thread stop.");
 	}
 	
 	public void savingMonitor() {
 		DetailDao dao = new DetailDao();
+		int count = 0;
 		while (true) {
-			try {
-				Thread.currentThread().sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			if (detailList.remainingCapacity() == 0 || stop == true) {
 				dao.batchAddDetail(detailList);
 				detailList.clear();
+				count += 10;
+				logger.info("已存入数据库"+ count +"个数据");
 				if (stop) break;
 			}
 		}
-		System.out.println("savingMonitor已停止工作");
+		logger.info("savingMonitor Thread stop.");
 	}
 	
     public static void main( String[] args )
@@ -104,6 +115,7 @@ public class App
         Thread t1 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				logger.info("PageDownloader Thread start.");
 				Thread.currentThread().setName("Thread-PageDownloader");
 				app.pageDownloaderCtrl();
 			}
@@ -112,7 +124,8 @@ public class App
         Thread t2 = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Thread.currentThread().setName("Thread-FolloweeParserCtrl");
+				logger.info("FolloweeParserCtrl Thread start.");
+				Thread.currentThread().setName("Thread-");
 				app.followeeParserCtrl();
 			}
 		});
@@ -120,6 +133,7 @@ public class App
         Thread t3 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				logger.info("AboutParserCtrl Thread start.");
 				Thread.currentThread().setName("Thread-AboutParserCtrl");
 				app.aboutParserCtrl();
 			}
@@ -128,6 +142,7 @@ public class App
         Thread t4 = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				logger.info("SavingMonitor Thread start.");
 				Thread.currentThread().setName("Thread-SavingMonitor");
 				app.savingMonitor();
 			}
